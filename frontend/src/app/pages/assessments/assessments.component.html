@@ -1,0 +1,323 @@
+<div class="flexbot">
+  <!-- Header -->
+  <div class="outer" *ngIf="course">
+    <div
+      class="courseimage"
+      style="background-image: url('{{ course.img }}')"
+    ></div>
+    <h4 id="title2">{{ course.name }}</h4>
+  </div>
+
+  <button type="button" id="back-button" class="btn button" (click)="back()">
+    Back
+  </button>
+
+  <!-- TEACHER -->
+  <div
+    class="test"
+    *ngIf="!!user && course && course.teachers.includes(user._id)"
+  >
+    <div class="box-shadow-2" id="add1">
+      <h6 class="child">Name</h6>
+      <h6 class="child">Assessment</h6>
+      <h6 class="child">Visibility</h6>
+      <h6 class="child">Submission</h6>
+    </div>
+
+    <div class="box-shadow-2" id="addout" *ngFor="let assess of assessArr">
+      <div class="trash">
+        <clr-icon
+          class="editt"
+          shape="note"
+          (click)="onEdit(assess)"
+        ></clr-icon>
+        <clr-icon
+          class="nono"
+          shape="trash"
+          (click)="onDelete(assess)"
+        ></clr-icon>
+      </div>
+      <div id="add2">
+        <div class="content">
+          <span class="h6">{{ assess.name }}</span>
+        </div>
+        <div class="content">
+          <div *ngFor="let file of assess.files">
+            <a
+              *ngIf="file"
+              download="{{ file.name }}"
+              href="https://uimpactify.herokuapp.com/api/course/documents/{{ file.id }}"
+              >{{ file.name }}</a
+            >
+          </div>
+        </div>
+        <div class="content">
+          <div *ngIf="assess.visibility">
+            <!-- <img src="../../../assets/stalkhehe.png" width="25" height="15" /> -->
+            <clr-icon shape="eye" size="30"></clr-icon>
+          </div>
+          <div *ngIf="!assess.visibility">
+            <!-- <img src="../../../assets/nopeak.png" width="25" height="15" /> -->
+            <clr-icon shape="eye-hide" size="30"></clr-icon>
+          </div>
+        </div>
+        <div class="content">
+          <clr-icon
+            shape="view-list"
+            id="submissionsTab"
+            (click)="showStudentSubmission(assess)"
+          ></clr-icon>
+        </div>
+      </div>
+    </div>
+
+    <button
+      class="box-shadow-2 add"
+      id="add2"
+      [ngStyle]="{
+        border: '2px var(--gray40) dashed',
+        width: 'calc(100% - 4rem)'
+      }"
+      (click)="modifyName()"
+    >
+      <h5 class="new">Create New Assessment</h5>
+    </button>
+  </div>
+
+  <!-- IMPACT LEARNER  -->
+  <div class="test addBottom" *ngIf="user.type == 'IL'">
+    <div class="box-shadow-2" id="add1">
+      <h6 class="child">Name</h6>
+      <h6 class="child">Assessment</h6>
+      <h6 class="child">File Upload</h6>
+      <h6 class="child">View submission(s)</h6>
+      <h6 class="child">Grade</h6>
+    </div>
+
+    <div
+      *ngIf="assessArr.length == 0"
+      class="box-shadow-2"
+      id="addout"
+      [ngStyle]="{
+        border: '2px var(--gray40) dashed',
+        margin: '3rem',
+        width: 'calc(100% - 4rem)'
+      }"
+    >
+      <h5 class="new">Hooray no Assessment(s)</h5>
+    </div>
+    <div
+      class="box-shadow-2"
+      id="addout"
+      *ngFor="let assess of assessArr; let i = index"
+    >
+      <div class="trash-2"></div>
+      <div id="add2">
+        <div class="content">
+          <span class="h6">{{ assess.name }}</span>
+        </div>
+        <div class="content">
+          <div *ngFor="let file of assess.files">
+            <a
+              *ngIf="file"
+              download="{{ file.name }}"
+              href="https://uimpactify.herokuapp.com/api/course/documents/{{ file.id }}"
+              >{{ file.name }}</a
+            >
+          </div>
+        </div>
+
+        <div class="content">
+          <clr-icon
+            shape="view-list"
+            id="submissionsTab"
+            (click)="submissionsModal = true; selectedAss = assess"
+          ></clr-icon>
+        </div>
+
+        <div class="content">
+          <div *ngFor="let file of viewSelfSubmissions[i]">
+            <a
+              *ngIf="file.name"
+              download="{{ file.name }}"
+              href="https://uimpactify.herokuapp.com/api/course/documents/{{ file.id }}"
+            >
+              {{ file.name }}
+            </a>
+          </div>
+        </div>
+
+        <div class="content">
+          <span class="markLabel" *ngIf="studentGrades[i] == -1">
+            Ungraded
+          </span>
+          <span class="markLabel" *ngIf="studentGrades[i] > -1">{{
+            studentGrades[i]
+          }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="submissionsModal == true && user.type == 'IL' && selectedAss">
+      <clr-modal
+        [(clrModalOpen)]="basic"
+        [clrModalSize]="'lg'"
+        [clrModalClosable]="false"
+      >
+        <h3 class="modal-title student-submission-title">
+          Submission for {{ selectedAss.name }}
+        </h3>
+        <div class="modal-body">
+          <form clrForm>
+            <clr-control-error>{{ error }}</clr-control-error>
+
+            <div class="add-overlay yes">
+              <ngx-file-drop
+                dropZoneLabel="Drop files here"
+                (onFileDrop)="dropped($event)"
+                (onFileOver)="fileOver($event)"
+                (onFileLeave)="fileLeave($event)"
+                contentClassName="fileUploadContent"
+                dropZoneClassName="dropZone"
+              >
+                <ng-template
+                  ngx-file-drop-content-tmp
+                  let-openFileSelector="openFileSelector"
+                >
+                  <div class="fileUpload" (click)="openFileSelector()">
+                    <clr-icon shape="picture"></clr-icon>
+                    <h3>Upload Documents</h3>
+                    <p>.png, .docx, .pdf</p>
+                    <p>Drag and drop, or click to browse</p>
+
+                    <div class="uploadedImage">
+                      <div *ngFor="let item of files; let i = index">
+                        <strong> Uploaded: "{{ item.relativePath }}"</strong>
+                      </div>
+                      <span id="imageError">
+                        {{ imageError }}
+                      </span>
+                    </div>
+                  </div>
+                </ng-template>
+              </ngx-file-drop>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-ok btn-outline btn-cancel"
+            (click)="submissionsModal = false"
+            (click)="cancel()"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            class="btn btn-ok btn-outline"
+            (click)="submitHandler()"
+          >
+            Submit
+          </button>
+        </div>
+      </clr-modal>
+    </div>
+  </div>
+</div>
+
+<clr-modal
+  [(clrModalOpen)]="createNewAssessmentModal"
+  [clrModalSize]="'lg'"
+  [clrModalClosable]="false"
+>
+  <h3 class="modal-title">{{ title }}</h3>
+  <div class="modal-body">
+    <form clrForm>
+      <div class="add-overlay">
+        <div class="position-top">
+          <input
+            type="text"
+            placeholder="Assessment Name"
+            name="name"
+            id="name"
+            [(ngModel)]="name"
+            class="text-area"
+          />
+        </div>
+        <div class="visi">
+          <div class="clr-form-control">
+            <div class="clr-control-container">
+              <div class="clr-toggle-wrapper">
+                <input
+                  type="checkbox"
+                  id="toggle1"
+                  name="toggle-basic"
+                  value="option1"
+                  [(ngModel)]="visibility"
+                  class="clr-toggle"
+                />
+                <label for="toggle1">Student Visibility</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="add-overlay">
+        <ngx-file-drop
+          dropZoneLabel="Drop files here"
+          (onFileDrop)="dropped($event)"
+          (onFileOver)="fileOver($event)"
+          (onFileLeave)="fileLeave($event)"
+          contentClassName="fileUploadContent"
+          dropZoneClassName="dropZone"
+        >
+          <ng-template
+            ngx-file-drop-content-tmp
+            let-openFileSelector="openFileSelector"
+          >
+            <div class="fileUpload" (click)="openFileSelector()">
+              <clr-icon shape="picture"></clr-icon>
+              <h3>Upload Documents</h3>
+              <p>.png, .docx, .pdf</p>
+              <p>Drag and drop, or click to browse</p>
+              <p *ngIf="editOption">
+                If files uploaded, will overwrite current ones
+              </p>
+              <div class="uploadedImage">
+                <div *ngFor="let item of files; let i = index">
+                  <strong> Uploaded: "{{ item.relativePath }}"</strong>
+                </div>
+                <span id="imageError">
+                  {{ imageError }}
+                </span>
+              </div>
+            </div>
+          </ng-template>
+        </ngx-file-drop>
+      </div>
+      <div class="error" *ngIf="visualError">
+        Assessment name and files must be filled
+      </div>
+    </form>
+  </div>
+
+  <div class="modal-footer">
+    <button
+      type="button"
+      class="btn btn-ok btn-outline btn-cancel"
+      (click)="cancel()"
+      (click)="createNewAssessmentModal = false"
+    >
+      Cancel
+    </button>
+    <button
+      type="button"
+      class="btn btn-ok btn-outline"
+      (click)="registerHandler()"
+    >
+      {{ createText }}
+    </button>
+  </div>
+</clr-modal>

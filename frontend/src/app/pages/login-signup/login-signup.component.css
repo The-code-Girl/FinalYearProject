@@ -1,0 +1,95 @@
+.container {
+  background-color: #fcfcfb;
+  flex-direction: row;
+  display: flex;
+  height: calc(100vh - 7rem);
+}
+
+.side-img {
+  width: 100%;
+  height: 100%;
+  padding-top: 2rem;
+  text-align: center;
+  font-size: 2.5vh;
+  overflow: hidden;
+}
+
+input {
+  min-height: 1.5rem;
+  margin-top: 0.5rem;
+}
+
+img{
+  height: 100%;
+  width: 100%;
+  transform: translateY(-2.5rem);
+}
+
+label {
+  display: flex;
+  text-align: left;
+  margin: 10px;
+  min-width: 20vw;
+  flex-direction: column;
+}
+
+form {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  width: 40vw;
+  height: calc(100vh - 7rem);
+  background: #eae4f1;
+  border-radius: 6px;
+  text-align: center;
+}
+
+.radio_label{
+  min-width: 0;
+}
+
+.align-row {
+  flex-direction: row;
+  display: flex;
+  align-items: center;
+}
+
+.align-row-radio {
+  flex-direction: row;
+  display: flex;
+  align-items: center;
+}
+
+a {
+  padding: 0rem 1rem;
+  word-wrap: normal;
+  display: inline-block;
+  text-decoration: underline;
+}
+
+button {
+  margin: 1rem;
+}
+
+#link-prompt {
+  cursor: pointer;
+}
+
+@media only screen and (max-width: 1000px) {
+  .align-row {
+    flex-direction: column;
+  }
+  form {
+    width: 100vw;
+  }
+}
+
+@media only screen and (max-width: 850px) {
+  .container {
+    flex-direction: column;
+  }
+  form {
+    width: 100vw;
+  }
+}

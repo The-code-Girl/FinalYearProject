@@ -1,0 +1,291 @@
+<div class="dashboard">
+  <div
+    class="alert alert-warning"
+    role="alert"
+    *ngIf="sameUser && !isProfileComplete"
+  >
+    <div class="alert-items">
+      <div class="alert-item static">
+        <div class="alert-icon-wrapper">
+          <clr-icon class="alert-icon" shape="exclamation-triangle"></clr-icon>
+        </div>
+        <span class="alert-text">
+          Your profile is missing information. Press <strong>EDIT</strong> to
+          complete it.
+        </span>
+      </div>
+    </div>
+  </div>
+  <div class="profile-card">
+    <div class="edit-button" *ngIf="sameUser">
+      <button class="btn btn-primary" (click)="shouldEditShow = true">
+        Edit
+      </button>
+    </div>
+    <div class="name-container">
+      <div class="profile-picture">
+        <div
+          class="profile-picture"
+          [ngClass]="{ 'no-image': !profileImage }"
+          [style.background-image]="'url(' + profileImage + ')'"
+        >
+          <clr-icon *ngIf="!user.img" shape="user"></clr-icon>
+        </div>
+      </div>
+      <div class="names">
+        <h3>{{ user.profile.fullName || user._id }}</h3>
+        <h5 *ngIf="user.profile.fullName">{{ user._id }}</h5>
+      </div>
+    </div>
+    <div class="info-container">
+      <h6>Personal Information</h6>
+      <div class="clr-row">
+        <div class="sub-card">
+          <div class="heading">Email</div>
+          <div class="sub-heading">{{ user.email }}</div>
+        </div>
+        <div class="sub-card" *ngIf="user.profile.phone">
+          <div class="heading">Phone Number</div>
+          <div class="sub-heading">{{ user.profile.phone }}</div>
+        </div>
+        <div class="sub-card">
+          <div class="heading">Linked Accounts</div>
+          <div class="accounts">
+            <div id="facebook" (click)="goTo(user.profile.facebook, 0)">
+              <img
+                class="icon"
+                [ngClass]="{ disabled: !user.profile.facebook }"
+                src="../../../../assets/profile/facebook.svg"
+                alt="facebook"
+              />
+            </div>
+            <div id="linkedin" (click)="goTo(user.profile.linkedIn, 1)">
+              <img
+                class="icon"
+                [ngClass]="{ disabled: !user.profile.linkedIn }"
+                src="../../../../assets/profile/linkedin.svg"
+                alt="linkedin"
+              />
+            </div>
+            <div id="twitter" (click)="goTo(user.profile.twitter, 2)">
+              <img
+                class="icon"
+                [ngClass]="{ disabled: !user.profile.twitter }"
+                src="../../../../assets/profile/twitter.svg"
+                alt="twitter"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="sameUser" class="profile-card">
+    <h6>Billing and Payment</h6>
+    <div class="profile-card-body">
+      <div class="displayCredit">
+        <h3>Amount in your Account:</h3>
+        ${{ user.credit.toFixed(2) }}
+      </div>
+      <div class="edit-button">
+        <button class="btn btn-primary" (click)="addMoneyShow = true">
+          Add Credit
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT PROFILE MODAL -->
+
+<clr-modal
+  *ngIf="sameUser"
+  [(clrModalOpen)]="shouldEditShow"
+  [clrModalSize]="'xl'"
+>
+  <h3 class="modal-title">Edit Profile</h3>
+  <div class="modal-body">
+    <div class="image-upload">
+      <form clrForm>
+        <div class="add-overlay">
+          <div class="position-top">
+            <strong>Full Name</strong>
+            <input
+              type="text"
+              placeholder="{{ user.profile.fullName }}"
+              [(ngModel)]="fullName"
+              name="fullName"
+              class="text-area"
+            />
+          </div>
+          <div class="position-top">
+            <strong>Phone Number</strong>
+            <input
+              type="text"
+              placeholder="{{ user.profile.phone }}"
+              [(ngModel)]="phone"
+              name="phone"
+              class="text-area"
+            />
+          </div>
+          <div class="position-top">
+            <strong>LinkedIn URL</strong>
+            <input
+              type="text"
+              placeholder="{{ user.profile.linkedIn }}"
+              [(ngModel)]="linkedIn"
+              name="linkedIn"
+              class="text-area"
+            />
+          </div>
+          <div class="position-top">
+            <strong>Facebook URL</strong>
+            <input
+              type="text"
+              placeholder="{{ user.profile.facebook }}"
+              [(ngModel)]="facebook"
+              name="facebook"
+              class="text-area"
+            />
+          </div>
+          <div class="position-top">
+            <strong>Twitter URL</strong>
+            <input
+              type="text"
+              placeholder="{{ user.profile.twitter }}"
+              [(ngModel)]="twitter"
+              name="twitter"
+              class="text-area"
+            />
+          </div>
+        </div>
+        <div class="add-overlay">
+          <ngx-file-drop
+            dropZoneLabel="Drop files here"
+            (onFileDrop)="droppedProfileImage($event)"
+            accept=".jpg, .png, .jpeg"
+            contentClassName="fileUploadContent"
+            dropZoneClassName="dropZone"
+          >
+            <ng-template
+              ngx-file-drop-content-tmp
+              let-openFileSelector="openFileSelector"
+            >
+              <div class="fileUpload" (click)="openFileSelector()">
+                <clr-icon shape="picture"></clr-icon>
+                <h3 class="h3ok">Upload Photo</h3>
+                <p>.jpg, .png, .jpeg</p>
+                <p>Drag and drop, or click to browse</p>
+                <div class="uploadedImage">
+                  <Strong>{{ uploadFileName }}</Strong>
+                </div>
+                <div class="uploadedImage" *ngIf="img[0]">
+                  Uploaded "{{ img[0].fileEntry.name }}"
+                </div>
+              </div>
+            </ng-template>
+          </ngx-file-drop>
+        </div>
+        <div class="error">
+          {{ imageError }}
+        </div>
+      </form>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button
+      type="button"
+      class="btn btn-ok btn-outline btn-cancel"
+      (click)="shouldEditShow = false"
+    >
+      Cancel
+    </button>
+    <button
+      type="button"
+      class="btn btn-ok btn-outline"
+      (click)="onChangeImage()"
+    >
+      Ok
+    </button>
+  </div>
+</clr-modal>
+
+<!-- PAYMENT MODAL -->
+
+<clr-modal [(clrModalOpen)]="addMoneyShow" [clrModalSize]="'lg'">
+  <h3 class="modal-title">Update Payment</h3>
+  <div class="modal-body">
+    <div class="image-upload">
+      <form clrForm>
+        <div class="add-overlay">
+          <div class="position-top">
+            <strong>Name</strong>
+            <input
+              type="text"
+              [(ngModel)]="model.name"
+              name="model.name"
+              placeholder="Name on Card"
+              class="text-area small"
+            />
+          </div>
+          <div class="position-top">
+            <strong>Credit Card No.</strong>
+            <input
+              type="text"
+              [(ngModel)]="model.creditCardNumber"
+              name="model.creditCardNumber"
+              placeholder="9999 9999 9999 9999"
+              class="text-area small"
+            />
+          </div>
+          <div class="position-top">
+            <strong>Expiration Date</strong>
+            <input
+              type="text"
+              [(ngModel)]="model.exp"
+              name="model.exp"
+              placeholder="MM/YYYY"
+              class="text-area small"
+            />
+          </div>
+          <div class="position-top">
+            <strong>CVC</strong>
+            <input
+              type="text"
+              [(ngModel)]="model.CVV"
+              name="model.CVV"
+              placeholder="XXX"
+              class="text-area small"
+            />
+          </div>
+          <div class="position-top">
+            <strong>Payment Amount</strong>
+            <input
+              type="text"
+              [(ngModel)]="model.credit"
+              name="model.credit"
+              placeholder="10.00"
+              class="text-area small"
+            />
+          </div>
+        </div>
+        <div class="error">
+          Card Information will be confidential after submission.
+        </div>
+      </form>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button
+      type="button"
+      class="btn btn-ok btn-outline btn-cancel"
+      (click)="addMoneyShow = false"
+    >
+      Cancel
+    </button>
+    <button type="button" class="btn btn-ok btn-outline" (click)="addCredit()">
+      Ok
+    </button>
+  </div>
+</clr-modal>

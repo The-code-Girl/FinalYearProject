@@ -1,0 +1,236 @@
+<div class="host">
+  <div class="card">
+    <div class="profile-container">
+      <div class="inner">
+        <div
+          class="profile-pic"
+          [ngClass]="{ 'no-image': !profileImage }"
+          [style.background-image]="'url(' + profileImage + ')'"
+        >
+          <clr-icon *ngIf="!profileImage" shape="image"></clr-icon>
+        </div>
+        <div class="info">
+          <div>
+            Registered Name: <span class="value">{{ user._id }}</span>
+          </div>
+          <div>
+            Registered No.:
+            <span class="value">{{
+              user.socialInitiative.registeredNumber
+            }}</span>
+          </div>
+          <div>
+            Business No.:
+            <span class="value">{{
+              user.socialInitiative.businessNumber
+            }}</span>
+          </div>
+          <div>
+            Location:
+            <span class="value">{{ user.socialInitiative.location }}</span>
+          </div>
+          <div>
+            Hours: <span class="value">{{ user.socialInitiative.hours }}</span>
+          </div>
+          <div>
+            Phone: <span class="value">{{ user.socialInitiative.phone }}</span>
+          </div>
+          <div>
+            Email: <span class="value">{{ user.socialInitiative.email }}</span>
+          </div>
+        </div>
+        <div class="btn-container">
+          <button
+            class="btn btn-purple"
+            *ngIf="isLoggedIn && !sameUser"
+            (click)="onDonate()"
+            id="donateButton"
+          >
+            Donate Now
+          </button>
+          <button class="btn btn-purple">Visit Our Website</button>
+          <button class="btn btn-purple">Email Us</button>
+          <button
+            *ngIf="sameUser"
+            (click)="basic = true"
+            class="btn edit btn-purple"
+          >
+            Edit
+          </button>
+        </div>
+      </div>
+      <!-- Here should go the Tabs Container as shown in the mockup -->
+    </div>
+  </div>
+</div>
+
+<clr-modal *ngIf="sameUser" [(clrModalOpen)]="basic" [clrModalSize]="'xl'">
+  <h3 class="modal-title">Edit Profile</h3>
+  <div class="modal-body">
+    <form clrForm>
+      <div class="add-overlay">
+        <div class="position-top">
+          <strong>Registered No.</strong>
+          <input
+            type="text"
+            placeholder="{{ registeredNumber }}"
+            [(ngModel)]="registeredNumber"
+            name="registered number"
+            class="text-area"
+          />
+        </div>
+        <div class="position-top">
+          <strong>Business No.</strong>
+          <input
+            type="text"
+            placeholder="{{ businessNumber }}"
+            [(ngModel)]="businessNumber"
+            name="business number"
+            class="text-area"
+          />
+        </div>
+        <div class="position-top">
+          <strong>Location</strong>
+          <input
+            type="text"
+            placeholder="{{ location }}"
+            [(ngModel)]="location"
+            name="location"
+            class="text-area"
+          />
+        </div>
+        <div class="position-top">
+          <strong>Hours</strong>
+          <input
+            type="text"
+            placeholder="{{ hours }}"
+            [(ngModel)]="hours"
+            name="hours"
+            class="text-area"
+          />
+        </div>
+        <div class="position-top">
+          <strong>Phone Number</strong>
+          <input
+            type="text"
+            placeholder="{{ phone }}"
+            [(ngModel)]="phone"
+            name="phone"
+            class="text-area"
+          />
+        </div>
+        <div class="position-top">
+          <strong>Email Address</strong>
+          <input
+            type="text"
+            placeholder="Title of Lecture"
+            placeholder="{{ email }}"
+            [(ngModel)]="email"
+            name="email"
+            class="text-area"
+          />
+        </div>
+      </div>
+
+      <div class="add-overlay">
+        <ngx-file-drop
+          dropZoneLabel="Drop files here"
+          (onFileDrop)="droppedProfileImage($event)"
+          accept=".jpg, .png, .jpeg"
+          contentClassName="fileUploadContent"
+          dropZoneClassName="dropZone"
+        >
+          <ng-template
+            ngx-file-drop-content-tmp
+            let-openFileSelector="openFileSelector"
+          >
+            <div class="fileUpload" (click)="openFileSelector()">
+              <clr-icon shape="picture"></clr-icon>
+              <h3 class="h3ok">Upload Photo</h3>
+              <p>.jpg, .png, .jpeg</p>
+              <p>Drag and drop, or click to browse</p>
+              <div class="uploadedImage">
+                <Strong>{{ uploadFileName }}</Strong>
+              </div>
+              <div class="uploadedImage" *ngIf="img[0]">
+                Uploaded "{{ img[0].fileEntry.name }}"
+              </div>
+            </div>
+          </ng-template>
+        </ngx-file-drop>
+      </div>
+      <div class="error">
+        {{ imageError }}
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button
+      type="button"
+      class="btn btn-ok btn-outline btn-cancel"
+      (click)="basic = false"
+      (click)="doNotChange()"
+    >
+      Cancel
+    </button>
+    <button
+      type="button"
+      class="btn btn-ok btn-outline"
+      (click)="basic = false"
+      (click)="add()"
+    >
+      Ok
+    </button>
+  </div>
+</clr-modal>
+
+<!-- DONATE MODAL -->
+
+<clr-modal class="popup" [(clrModalOpen)]="opened" [clrModalSize]="'lg'">
+  <div class="modal-body">
+    <h3 class="modal-title">I want to contribute to {{ user._id }}</h3>
+    <div class="row inner_modal">
+      <div class="col">
+        <div>
+          <p>How much will you like to donate?</p>
+        </div>
+        <div>
+          <form class="clr-form">
+            $
+            <input
+              [(ngModel)]="amount"
+              [ngModelOptions]="{ standalone: true }"
+              type="text"
+              id="basic"
+              placeholder="100.00"
+              class="clr-input"
+            />
+          </form>
+        </div>
+      </div>
+      <div>
+        <img
+          class="modal_img"
+          src="../../../assets/giving_garden/donate_si.svg"
+        />
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button
+      type="button"
+      class="btn btn-ok btn-outline"
+      (click)="opened = false"
+    >
+      Cancel
+    </button>
+    <button
+      type="button"
+      class="btn btn-ok btn-outline btn-cancel"
+      (click)="onOkay()"
+      (click)="opened = false"
+    >
+      Ok
+    </button>
+  </div>
+</clr-modal>
